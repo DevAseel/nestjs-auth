@@ -5,7 +5,9 @@ import { Inject, UseInterceptors, ClassSerializerInterceptor, UseFilters } from 
 import { HttpExceptionFilter } from '../../filters';
 import { UsersService, BcryptService } from 'src/users/services';
 import { CreateUserDto } from 'src/users/dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(

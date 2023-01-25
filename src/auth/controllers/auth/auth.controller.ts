@@ -8,11 +8,24 @@ import { Token } from '../../types';
 import { Response } from 'express';
 import { cookieConfig } from 'src/config';
 import { IAuthController } from 'src/auth/interfaces';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController implements IAuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
+  @ApiCreatedResponse({
+    description: 'User created.',
+  })
+  @ApiNoContentResponse({
+    description: 'Empty request.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+  })
   @Post('local/signup')
   @Public()
   @UsePipes(ValidationPipe)
@@ -24,6 +37,18 @@ export class AuthController implements IAuthController {
     return tokens;
   }
 
+  @ApiOkResponse({
+    description: 'User logged in.',
+  })
+  @ApiNoContentResponse({
+    description: 'Empty request.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @Post('local/signin')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -34,6 +59,18 @@ export class AuthController implements IAuthController {
     return tokens;
   }
 
+  @ApiOkResponse({
+    description: 'User logged out.',
+  })
+  @ApiNoContentResponse({
+    description: 'Empty request.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @Post('logout')
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
@@ -43,6 +80,18 @@ export class AuthController implements IAuthController {
     return this.authService.logout(userId);
   }
 
+  @ApiCreatedResponse({
+    description: 'Access and refresh tokens created.',
+  })
+  @ApiNoContentResponse({
+    description: 'Empty request.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @Post('refresh')
   @Public()
   @UseGuards(RtGuard)
