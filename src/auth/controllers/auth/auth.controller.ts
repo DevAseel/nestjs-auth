@@ -1,15 +1,16 @@
-import { AtGuard, RtGuard } from './../../../common/guards';
-import { getCurrentUser, getCurrentUserId, Public } from './../../../common/decorators';
-import { AuthService } from './../../services';
+import { AtGuard, RtGuard } from '../../../common/guards';
+import { getCurrentUser, getCurrentUserId, Public } from '../../../common/decorators';
+import { AuthService } from '../../services';
 import { Controller, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Inject, HttpCode, HttpStatus, UseGuards, Res } from '@nestjs/common';
 import { AuthDto } from 'src/auth/dto';
 import { Token } from '../../types';
 import { Response } from 'express';
 import { cookieConfig } from 'src/config';
+import { IAuthController } from 'src/auth/interfaces';
 
 @Controller('auth')
-export class AuthController {
+export class AuthController implements IAuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post('local/signup')
@@ -36,7 +37,7 @@ export class AuthController {
   @Post('logout')
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
-  logout(@getCurrentUserId() userId: string, @Res({ passthrough: true }) res: Response) {
+  logout(@getCurrentUserId() userId: string, @Res({ passthrough: true }) res: Response): Promise<void> {
     res.clearCookie('_auth_at');
     res.clearCookie('_auth_rt');
     return this.authService.logout(userId);
@@ -46,7 +47,7 @@ export class AuthController {
   @Public()
   @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
-  refresh(@getCurrentUserId() userId: string, @getCurrentUser('refreshToken') refreshToken: string) {
+  refresh(@getCurrentUserId() userId: string, @getCurrentUser('refreshToken') refreshToken: string): Promise<Token> {
     return this.authService.refreshToken(userId, refreshToken);
   }
 }
